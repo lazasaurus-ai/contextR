@@ -1,9 +1,10 @@
 
 # contextR
 
-Light-weight **conversational memory** for R, inspired by LangChain but 100 % native.  
+Light‑weight **conversational memory** for R, inspired by LangChain but 100 % native.  
 Easily store, trim, persist, and format chat history for any LLM workflow.  
-Out‑of‑the‑box helpers for **AWS Bedrock** via the [`ellmer`](https://github.com/mikmart/ellmer) package.
+Includes out‑of‑the‑box helpers for **AWS Bedrock** via the
+[`ellmer`](https://github.com/mikmart/ellmer) package.
 
 ---
 
@@ -16,11 +17,12 @@ devtools::install_github("lazaroalva97/contextR")
 ```
 
 ### Dependencies
-| Type    | Package | Purpose                                   |
-|---------|---------|-------------------------------------------|
-| Imports | `tibble`, `glue` | tidy tables & string glue        |
-| Suggests| `ellmer`         | Bedrock chat helper (optional)   |
-| Suggests| `shiny`          | only for demo Shiny app          |
+| Type      | Package  | Purpose                           |
+|-----------|----------|-----------------------------------|
+| Imports   | `tibble`, `glue` | tidy tables & string glue |
+| Suggests  | `ellmer` | Bedrock chat helper (optional)   |
+| Suggests  | `shiny`  | only for the demo Shiny app      |
+| Suggests  | `promises`, `future` | async Shiny example  |
 
 ---
 
@@ -72,9 +74,35 @@ cli$get_turns()      # tibble of all turns
 
 ---
 
+## Automatic persistence
+
+```r
+library(contextR)
+
+buf <- load_or_new_memory(          # loads if file exists, else creates new
+  k             = 6,
+  system_prompt = "Answer concisely and use prior context.",
+  save_dir      = "demo",
+  save_file     = "frog_convo.rds"
+)
+
+if (requireNamespace("ellmer", quietly = TRUE)) {
+  chat_with_memory_one_shot(buf, "Tell me about frogs in the USA.")
+}
+
+## later / next session ----
+
+buf <- load_or_new_memory(
+  save_dir  = "demo",
+  save_file = "frog_convo.rds"
+)
+```
+
+---
+
 ## Shiny demo
 
-Launch the minimal app that lives in **demo/shiny_example.R**:
+Launch:
 
 ```r
 shiny::runApp(
@@ -82,18 +110,13 @@ shiny::runApp(
 )
 ```
 
-Tabs:
-
-* **Chat Log** – coloured user & assistant turns  
-* **Raw tibble** – live view of the `MemoryBuffer`
-
 ---
 
 ## CRAN notes
 
-* Network code is guarded with `requireNamespace("ellmer", quietly = TRUE)`.  
-* Examples that hit Bedrock are wrapped in `\dontrun{}`.  
-* Demo scripts reside in `demo/` and are ignored by `.Rbuildignore`.
+* All network calls are protected with `requireNamespace("ellmer", quietly = TRUE)`.
+* Network examples are wrapped in `\dontrun{}`.
+* Demo scripts are ignored by `.Rbuildignore`.
 
 ---
 

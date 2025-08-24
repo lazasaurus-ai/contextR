@@ -1,24 +1,27 @@
 Package: contextR
 Type: Package
-Title: Conversational Memory Buffers for R
-Version: 0.0.0.9000
-Authors@R:
-    person(given = "Lazaro", family = "Alvarez", email = "your@email.com", role = c("aut", "cre"))
-Description: Lightweight conversational memory buffers for R inspired by LangChain.
-    Store, retrieve, truncate, and optionally persist message history. Includes helpers
-    to format conversational context for LLM prompts.
+Title: Lightweight Conversational Memory for R
+Version: 0.1.0
+Authors@R: 
+    person(given = "Lazaro", 
+           family = "Alvarez", 
+           role = c("aut", "cre"), 
+           email = "lazarusalvarez3@gmail.com")
+Description: Store, trim, persist, and format chat history for any LLM workflow.
+    Includes convenience helpers for AWS Bedrock via the 'ellmer' package and
+    Shiny-ready reactive wrappers.
 License: MIT + file LICENSE
-URL: https://github.com/your-org/contextR
-BugReports: https://github.com/your-org/contextR/issues
-Depends: R (>= 3.5.0)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
 Imports:
     tibble,
     glue
 Suggests:
-    testthat (>= 3.0.0),
+    ellmer,
     shiny,
-    ellmer
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
-Config/testthat/edition: 3
+    promises,
+    future,
+    testthat (>= 3.0.0)
+URL: https://github.com/lazasaurus-ai/contextR
+BugReports: https://github.com/lazasaurus-ai/contextR/issues
