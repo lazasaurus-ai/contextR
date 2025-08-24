@@ -1,0 +1,33 @@
+test_that("memory trims to k", {
+  buf <- memory_buffer(k = 3)
+  add_message(buf, "user", "hi")
+  add_message(buf, "assistant", "hello")
+  add_message(buf, "user", "again")
+  add_message(buf, "assistant", "trim?")
+  mem <- get_memory(buf)
+  expect_equal(nrow(mem), 3)
+  expect_identical(mem$role, c("assistant","user","assistant"))
+})
+
+test_that("formatted context contains roles", {
+  buf <- memory_buffer(k = 5, system_prompt = "Be helpful.")
+  add_message(buf, "user", "Who are you?")
+  add_message(buf, "assistant", "I'm an assistant.")
+  txt <- get_formatted_context(buf, format = "ellmer")
+  expect_true(grepl("### System", txt, fixed = TRUE))
+  expect_true(grepl("Conversation History", txt, fixed = TRUE))
+  expect_true(grepl("- user: Who are you?", txt, fixed = TRUE))
+  expect_true(grepl("- assistant: I'm an assistant.", txt, fixed = TRUE))
+})
+
+test_that("persistence works via tempdir", {
+  buf <- memory_buffer(k = 2)
+  add_message(buf, "user", "A")
+  add_message(buf, "assistant", "B")
+  tmp <- tempfile(fileext = ".rds")
+  save_memory(buf, tmp)
+  buf2 <- load_memory(tmp)
+  mem <- get_memory(buf2)
+  expect_equal(nrow(mem), 2)
+  expect_identical(mem$role, c("user","assistant"))
+})
