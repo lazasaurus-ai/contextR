@@ -6,6 +6,9 @@
 \usage{
 last_assistant_text(buffer)
 }
+\arguments{
+\item{buffer}{A \code{MemoryBuffer}.}
+}
 \description{
 Get the last assistant message from the buffer as plain text
 }

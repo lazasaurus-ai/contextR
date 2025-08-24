@@ -354,18 +354,19 @@ display: none;
 
 <div id="contextr" class="section level1">
 <h1>contextR</h1>
-<p>Light-weight <strong>conversational memory</strong> for R, inspired
-by LangChain but 100 % native.<br />
+<p>Light‑weight <strong>conversational memory</strong> for R, inspired
+by LangChain but 100 % native.<br />
 Easily store, trim, persist, and format chat history for any LLM
 workflow.<br />
-Out‑of‑the‑box helpers for <strong>AWS Bedrock</strong> via the <a href="https://github.com/mikmart/ellmer"><code>ellmer</code></a>
+Includes out‑of‑the‑box helpers for <strong>AWS Bedrock</strong> via the
+<a href="https://github.com/mikmart/ellmer"><code>ellmer</code></a>
 package.</p>
 <hr />
 <div id="installation" class="section level2">
 <h2>Installation</h2>
 <pre class="r"><code># devtools is optional but convenient
 install.packages(&quot;devtools&quot;)
-devtools::install_github(&quot;lazaroalva97/contextR&quot;)</code></pre>
+devtools::install_github(&quot;lazasaurus-ai/contextR&quot;)</code></pre>
 <div id="dependencies" class="section level3">
 <h3>Dependencies</h3>
 <table>
@@ -390,12 +391,31 @@ devtools::install_github(&quot;lazaroalva97/contextR&quot;)</code></pre>
 <tr class="odd">
 <td>Suggests</td>
 <td><code>shiny</code></td>
-<td>only for demo Shiny app</td>
+<td>only for the demo Shiny app</td>
+</tr>
+<tr class="even">
+<td>Suggests</td>
+<td><code>promises</code>, <code>future</code></td>
+<td>async Shiny example</td>
 </tr>
 </tbody>
 </table>
 <hr />
 </div>
+</div>
+<div id="configure-a-default-client-via-.rprofile" class="section level2">
+<h2>Configure a default client via <code>.Rprofile</code></h2>
+<p>Add this snippet to <code>~/.Rprofile</code> (or the project
+<code>.Rprofile</code>) so every R session automatically uses your
+preferred Bedrock model:</p>
+<pre class="r"><code>options(
+  contextR.chat_client = ellmer::chat_aws_bedrock(
+    model         = &quot;anthropic.claude-3-5-sonnet-20240620-v1:0&quot;,
+    system_prompt = &quot;Answer concisely and use prior context.&quot;
+  )
+)</code></pre>
+<p>Now calls like <code>context_chat_client()</code> or the Shiny demo
+will pick up that client without additional code.</p>
 </div>
 <div id="quick-start-oneshot-helper" class="section level2">
 <h2>Quick start (one‑shot helper)</h2>
@@ -439,34 +459,44 @@ cli$chat(&quot;What about Mexico?&quot;)
 cli$get_turns()      # tibble of all turns</code></pre>
 <hr />
 </div>
+<div id="automatic-persistence" class="section level2">
+<h2>Automatic persistence</h2>
+<pre class="r"><code>library(contextR)
+
+buf &lt;- load_or_new_memory(          # loads if file exists, else creates new
+  k             = 6,
+  system_prompt = &quot;Answer concisely and use prior context.&quot;,
+  save_dir      = &quot;demo&quot;,
+  save_file     = &quot;frog_convo.rds&quot;
+)
+
+if (requireNamespace(&quot;ellmer&quot;, quietly = TRUE)) {
+  chat_with_memory_one_shot(buf, &quot;Tell me about frogs in the USA.&quot;)
+}
+
+## later / next session ----
+
+buf &lt;- load_or_new_memory(
+  save_dir  = &quot;demo&quot;,
+  save_file = &quot;frog_convo.rds&quot;
+)</code></pre>
+<hr />
+</div>
 <div id="shiny-demo" class="section level2">
 <h2>Shiny demo</h2>
-<p>Launch the minimal app that lives in
-<strong>demo/shiny_example.R</strong>:</p>
+<p>Launch:</p>
 <pre class="r"><code>shiny::runApp(
   system.file(&quot;demo&quot;, &quot;shiny_example.R&quot;, package = &quot;contextR&quot;)
 )</code></pre>
-<p>Tabs:</p>
-<ul>
-<li><strong>Chat Log</strong> – coloured user &amp; assistant
-turns<br />
-</li>
-<li><strong>Raw tibble</strong> – live view of the
-<code>MemoryBuffer</code></li>
-</ul>
 <hr />
 </div>
 <div id="cran-notes" class="section level2">
 <h2>CRAN notes</h2>
 <ul>
-<li>Network code is guarded with
-<code>requireNamespace(&quot;ellmer&quot;, quietly = TRUE)</code>.<br />
-</li>
-<li>Examples that hit Bedrock are wrapped in
-<code>\dontrun{}</code>.<br />
-</li>
-<li>Demo scripts reside in <code>demo/</code> and are ignored by
-<code>.Rbuildignore</code>.</li>
+<li>All network calls are protected with
+<code>requireNamespace(&quot;ellmer&quot;, quietly = TRUE)</code>.</li>
+<li>Network examples are wrapped in <code>\dontrun{}</code>.</li>
+<li>Demo scripts are ignored by <code>.Rbuildignore</code>.</li>
 </ul>
 <hr />
 </div>

@@ -6,6 +6,9 @@
 \usage{
 print_last_reply(buffer)
 }
+\arguments{
+\item{buffer}{A \code{MemoryBuffer}.}
+}
 \description{
 Print the most recent model reply (pretty)
 }

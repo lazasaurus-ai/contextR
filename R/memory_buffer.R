@@ -224,10 +224,10 @@ load_memory <- function(file) {
 }
 
 #' Enable/disable autosave and/or update path
-#' @param buffer MemoryBuffer
-#' @param enabled logical
-#' @param save_dir optional new dir
-#' @param save_file optional new file name
+#' @param buffer    A `MemoryBuffer`.
+#' @param enabled   Logical; `TRUE` to turn autosave on, `FALSE` to turn it off.
+#' @param save_dir  Optional directory for the `.rds` file (defaults to current).
+#' @param save_file Optional file name for the autosave `.rds`.
 #' @export
 set_autosave <- function(buffer, enabled = TRUE, save_dir = NULL, save_file = NULL) {
   .assert_buffer(buffer)
@@ -239,6 +239,7 @@ set_autosave <- function(buffer, enabled = TRUE, save_dir = NULL, save_file = NU
 }
 
 #' Get the current autosave target path
+#' @param buffer A `MemoryBuffer`.
 #' @export
 get_save_path <- function(buffer) {
   .assert_buffer(buffer)
@@ -269,6 +270,7 @@ get_save_path <- function(buffer) {
 }
 
 #' Get the last assistant message from the buffer as plain text
+#' @param buffer A `MemoryBuffer`.
 #' @export
 last_assistant_text <- function(buffer) {
   .assert_buffer(buffer)
@@ -280,9 +282,12 @@ last_assistant_text <- function(buffer) {
 }
 
 #' Print the most recent model reply (pretty)
+#' @param buffer A `MemoryBuffer`.
 #' @export
 print_last_reply <- function(buffer) {
   txt <- last_assistant_text(buffer)
   cat(txt, sep = "\n")
   invisible(txt)
 }
+
+

@@ -2,17 +2,17 @@
 % Please edit documentation in R/utils.R
 \name{as_text}
 \alias{as_text}
-\title{Coerce common SDK response objects to a single character string}
+\title{Convert SDK response objects to plain text}
 \usage{
 as_text(x)
 }
 \arguments{
-\item{x}{Any object}
+\item{x}{Any object.}
 }
 \value{
-length-1 character string
+A length-1 character string.
 }
 \description{
-Works with characters, lists, and ellmer Chat objects (environments/R6).
-For ellmer Chat, it uses get_turns()/last_turn() to extract the last assistant text.
+Works with characters, lists, and ellmer Chat objects (R6).
+Falls back to \code{utils::str()} if no obvious text field is found.
 }

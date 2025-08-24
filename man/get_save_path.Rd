@@ -6,6 +6,9 @@
 \usage{
 get_save_path(buffer)
 }
+\arguments{
+\item{buffer}{A \code{MemoryBuffer}.}
+}
 \description{
 Get the current autosave target path
 }

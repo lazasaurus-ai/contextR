@@ -1,4 +1,3 @@
-
 # contextR
 
 Light‑weight **conversational memory** for R, inspired by LangChain but 100 % native.  
@@ -13,7 +12,7 @@ Includes out‑of‑the‑box helpers for **AWS Bedrock** via the
 ```r
 # devtools is optional but convenient
 install.packages("devtools")
-devtools::install_github("lazaroalva97/contextR")
+devtools::install_github("lazasaurus-ai/contextR")
 ```
 
 ### Dependencies
@@ -25,6 +24,24 @@ devtools::install_github("lazaroalva97/contextR")
 | Suggests  | `promises`, `future` | async Shiny example  |
 
 ---
+
+## Configure a default client via `.Rprofile`
+
+Add this snippet to `~/.Rprofile` (or the project `.Rprofile`) so every R
+session automatically uses your preferred Bedrock model:
+
+```r
+options(
+  contextR.chat_client = ellmer::chat_aws_bedrock(
+    model         = "anthropic.claude-3-5-sonnet-20240620-v1:0",
+    system_prompt = "Answer concisely and use prior context."
+  )
+)
+```
+
+Now calls like `context_chat_client()` or the Shiny demo will pick up that
+client without additional code.
+
 
 ## Quick start (one‑shot helper)
 

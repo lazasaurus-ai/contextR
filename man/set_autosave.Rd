@@ -7,13 +7,13 @@
 set_autosave(buffer, enabled = TRUE, save_dir = NULL, save_file = NULL)
 }
 \arguments{
-\item{buffer}{MemoryBuffer}
+\item{buffer}{A \code{MemoryBuffer}.}
 
-\item{enabled}{logical}
+\item{enabled}{Logical; \code{TRUE} to turn autosave on, \code{FALSE} to turn it off.}
 
-\item{save_dir}{optional new dir}
+\item{save_dir}{Optional directory for the \code{.rds} file (defaults to current).}
 
-\item{save_file}{optional new file name}
+\item{save_file}{Optional file name for the autosave \code{.rds}.}
 }
 \description{
 Enable/disable autosave and/or update path
