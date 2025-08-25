@@ -212,6 +212,86 @@ buf <- load_or_new_memory(
 
 ------------------------------------------------------------------------
 
+## Breakdown of Prompt Memory
+
+```r
+> #library(contextR)
+> 
+> # ── 1. Create client with rolling summaries every 4 raw turns ──────────
+> cli <- context_chat_client(k = 6, summary_n = 4)
+Using model =
+"anthropic.claude-3-5-sonnet-20240620-v1:0".
+> 
+> # ── 2. Four turns → Summary 1 is auto-appended ─────────────────────────
+> cli$chat("Tell me about frogs or toads in the USA.",
++          followup = "Answer in 2–3 sentences.")
+[1] "The United States is home to a diverse array of frogs and toads, with over 90 native species. These amphibians can be found in various habitats across the country, from wetlands and forests to deserts and mountains. Some well-known examples include the American bullfrog, spring peeper, and Western toad, each playing important roles in their respective ecosystems."
+> cli$chat("What about Mexico? Focus on differences vs USA.")
+[1] "Mexico has a higher diversity of frogs and toads, with over 370 species compared to the USA's 90+. Many Mexican species are endemic, found nowhere else in the world. Mexico's tropical and subtropical climates support unique amphibians like the axolotl and various tree frogs, which are less common in the USA's more temperate regions. Additionally, Mexico faces greater conservation challenges due to habitat loss and climate change impacts on its diverse amphibian populations."
+> cli$chat("List three endangered amphibian species in Mexico.")
+[1] "Three endangered amphibian species in Mexico are:\n\n1. Axolotl (Ambystoma mexicanum)\n2. Craugastor uno (One-toed Robber Frog)\n3. Plectrohyla pentheter (Perote Mountain Frog)\n\nThese species face threats from habitat loss, pollution, and climate change, highlighting Mexico's unique conservation challenges for its diverse amphibian population."
+> cli$chat("Briefly explain why amphibians are declining worldwide.")  # ← Summary 1 created
+[1] "Amphibians are declining worldwide due to several interrelated factors:\n\n1. Habitat destruction: Urbanization, deforestation, and agricultural expansion are destroying crucial amphibian habitats.\n2. Climate change: Altering temperatures and precipitation patterns disrupt breeding cycles and habitats.\n3. Pollution: Water and air pollution affect amphibians' sensitive skin and aquatic environments.\n4. Disease: The spread of pathogens like chytrid fungus is decimating many amphibian populations.\n5. Invasive species: Non-native predators and competitors are threatening native amphibian species.\n\nThese factors, often acting in combination, are causing widespread amphibian declines and extinctions globally."
+> 
+> # Inspect buffer: note the single system row named "summary"
+> cli$get_turns()
+# A tibble: 6 × 5
+  role      content              timestamp           name  meta        
+  <chr>     <chr>                <dttm>              <chr> <list>      
+1 assistant "Mexico has a highe… 2025-08-25 13:05:33 NA    <list [0]>  
+2 system    "SUMMARY (fallback)… 2025-08-25 13:05:33 summ… <named list>
+3 user      "List three endange… 2025-08-25 13:05:33 NA    <list [0]>  
+4 assistant "Three endangered a… 2025-08-25 13:05:36 NA    <list [0]>  
+5 user      "Briefly explain wh… 2025-08-25 13:05:36 NA    <list [0]>  
+6 assistant "Amphibians are dec… 2025-08-25 13:05:40 NA    <list [0]>  
+> #> # A tibble: 6 × 5
+> #>   role      content                          timestamp            name   meta
+> #> 1 assistant “… USA answer …”                2025-08-24 …         NA     …
+> #> 2 system    "SUMMARY: Tell me about …"      2025-08-24 …         summary <…>
+> #> 3 user      "List three endangered …"       2025-08-24 …         NA     …
+> #> 4 assistant "Three endangered amphibian …"  2025-08-24 …         NA     …
+> #> 5 user      "Briefly explain why …"         2025-08-24 …         NA     …
+> #> 6 assistant "Amphibians are declining …"    2025-08-24 …         NA     …
+> 
+> # ── 3. Show exactly what will be sent to the LLM next ──────────────────
+> prompt_preview <- memory_prompt(
++   cli$memory(),                                        # buffer with summary row
++   "Given our discussion, name one frog species unique to Mexico and explain why it is endemic.",
++   format = "ellmer"
++ )
+> cat(prompt_preview)
+### System
+Answer concisely and use prior context.
+
+### Conversation History
+
+- assistant: Mexico has a higher diversity of frogs and toads, with over 370 species compared to the USA's 90+. Many Mexican species are endemic, found nowhere else in the world. Mexico's tropical and subtropical climates support unique amphibians like the axolotl and various tree frogs, which are less common in the USA's more temperate regions. Additionally, Mexico faces greater conservation challenges due to habitat loss and climate change impacts on its diverse amphibian populations.
+- system: SUMMARY (fallback): Tell me about frogs or toads in the USA. | The United States is home to a diverse array of frogs and toads, with over 90 native species. These amphibians can be found in various habitats across the country, from wetlands and forests to deserts and mountains. Some well-known examples include the American bullfrog, spring peeper, and Western toad, each playing important roles in their respective ecosystems. | What about Mexico? Focus on differences vs USA. | Mexico has a higher diversity of frogs and toads, with over 370 species compared to the USA's 90+. Many Mexican species are endemic, found nowhere else in the world. Mexico's tropical and subtropical climates support unique amphibians like the axolotl and various tree frogs, which are less common in the USA's more temperate regions. Additionally, Mexico faces greater conservation challenges due to habitat loss and climate change impacts on its diverse amphibian populations.
+- user: List three endangered amphibian species in Mexico.
+- assistant: Three endangered amphibian species in Mexico are:
+
+1. Axolotl (Ambystoma mexicanum)
+2. Craugastor uno (One-toed Robber Frog)
+3. Plectrohyla pentheter (Perote Mountain Frog)
+
+These species face threats from habitat loss, pollution, and climate change, highlighting Mexico's unique conservation challenges for its diverse amphibian population.
+- user: Briefly explain why amphibians are declining worldwide.
+- assistant: Amphibians are declining worldwide due to several interrelated factors:
+
+1. Habitat destruction: Urbanization, deforestation, and agricultural expansion are destroying crucial amphibian habitats.
+2. Climate change: Altering temperatures and precipitation patterns disrupt breeding cycles and habitats.
+3. Pollution: Water and air pollution affect amphibians' sensitive skin and aquatic environments.
+4. Disease: The spread of pathogens like chytrid fungus is decimating many amphibian populations.
+5. Invasive species: Non-native predators and competitors are threatening native amphibian species.
+
+These factors, often acting in combination, are causing widespread amphibian declines and extinctions globally.
+
+### New User Prompt
+Given our discussion, name one frog species unique to Mexico and explain why it is endemic.
+```
+
+------------------------------------------------------------------------
+
 ## Shiny demo
 
 Launch:
