@@ -1,36 +1,34 @@
-# contextR
+# contextR <a href="https://lazasaurus-ai.github.io/contextR"><img src="img/contextR-hex.png" align="right" height="138" alt="contextR hex logo" /></a>
 
-Light‑weight **conversational memory** for R, inspired by LangChain but 100 % native.  
-Easily store, trim, persist, and format chat history for any LLM workflow.  
-Includes out‑of‑the‑box helpers for **AWS Bedrock** via the
-[`ellmer`](https://github.com/mikmart/ellmer) package.
+Light‑weight **conversational memory** for R, inspired by LangChain but 100 % native.\
+Easily store, trim, persist, and format chat history for any LLM workflow.\
+Includes out‑of‑the‑box helpers for **AWS Bedrock** via the [`ellmer`](https://github.com/tidyverse/ellmer) package.
 
----
+------------------------------------------------------------------------
 
 ## Installation
 
-```r
-# devtools is optional but convenient
+``` r
 install.packages("devtools")
 devtools::install_github("lazasaurus-ai/contextR")
 ```
 
 ### Dependencies
-| Type      | Package  | Purpose                           |
-|-----------|----------|-----------------------------------|
-| Imports   | `tibble`, `glue` | tidy tables & string glue |
-| Suggests  | `ellmer` | Bedrock chat helper (optional)   |
-| Suggests  | `shiny`  | only for the demo Shiny app      |
-| Suggests  | `promises`, `future` | async Shiny example  |
 
----
+| Type     | Package              | Purpose                        |
+|----------|----------------------|--------------------------------|
+| Imports  | `tibble`, `glue`     | tidy tables & string glue      |
+| Suggests | `ellmer`             | Bedrock chat helper (optional) |
+| Suggests | `shiny`              | only for the demo Shiny app    |
+| Suggests | `promises`, `future` | async Shiny example            |
+
+------------------------------------------------------------------------
 
 ## Configure a default client via `.Rprofile`
 
-Add this snippet to `~/.Rprofile` (or the project `.Rprofile`) so every R
-session automatically uses your preferred Bedrock model:
+Add this snippet to `~/.Rprofile` (or the project `.Rprofile`) so every R session automatically uses your preferred Bedrock model:
 
-```r
+``` r
 options(
   contextR.chat_client = ellmer::chat_aws_bedrock(
     model         = "anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -39,13 +37,11 @@ options(
 )
 ```
 
-Now calls like `context_chat_client()` or the Shiny demo will pick up that
-client without additional code.
-
+Now calls like `context_chat_client()` or the Shiny demo will pick up that client without additional code.
 
 ## Quick start (one‑shot helper)
 
-```r
+``` r
 library(contextR)
 
 buf <- memory_buffer(
@@ -73,24 +69,22 @@ if (requireNamespace("ellmer", quietly = TRUE)) {
 }
 ```
 
----
-
+------------------------------------------------------------------------
 
 ## Supported Buffer-Memory Options
 
 | Mode | How it works | Best for |
-|------|--------------|----------|
-| **Fixed-size buffer**  <br>`context_chat_client(k = …, summary_n = NULL)` | Retains only the *last **k*** user/assistant turns. When a new turn arrives and the cap is exceeded, the **oldest** row is discarded. | Very short chats or quick, interactive sessions where full detail isn’t required. |
-| **Rolling-summary buffer**  <br>`context_chat_client(k = …, summary_n = n)` | After every *n* raw turns (user + assistant) the client appends a concise **system summary** row. Older raw turns may be trimmed, but the latest summary row(s) preserve context, keeping the prompt small while the model still “remembers” earlier discussion. | Longer conversations that need continuity **without** the token cost of full transcripts. |
+|-----------------|--------------------------------|-----------------------|
+| **Fixed-size buffer** <br>`context_chat_client(k = …, summary_n = NULL)` | Retains only the *last **k*** user/assistant turns. When a new turn arrives and the cap is exceeded, the **oldest** row is discarded. | Very short chats or quick, interactive sessions where full detail isn’t required. |
+| **Rolling-summary buffer** <br>`context_chat_client(k = …, summary_n = n)` | After every *n* raw turns (user + assistant) the client appends a concise **system summary** row. Older raw turns may be trimmed, but the latest summary row(s) preserve context, keeping the prompt small while the model still “remembers” earlier discussion. | Longer conversations that need continuity **without** the token cost of full transcripts. |
 
 > **Tip:** keep `summary_n ≤ k − 1` so at least one summary row always fits inside the buffer.
-
 
 ### Fixed-size buffer
 
 Simple rotation of context based on `k` number of rotations of user and assistance chats.
 
-```r
+``` r
 library(contextR)
 
 cli <- context_chat_client(k = 6)  # Bedrock client + internal buffer
@@ -111,7 +105,7 @@ cli$get_turns()      # tibble of all turns
 
 #### Simple Diagram
 
-```r
+``` r
 Fixed-size buffer  (k = 6, summary_n = NULL)
 ────────────────────────────────────────────────────────────
 Turn # :  1   2   3   4   5   6   7   8   9 …
@@ -122,13 +116,11 @@ Legend U = user A = assistant
 Always keeps the most-recent 6 raw turns—nothing else.
 ```
 
-
 ### Rolling-summary chat client
 
 Keep the buffer lean by rotating out the oldest messages once k rows are reached while injecting a concise system summary every n raw turns to retain the full conversation context.
 
-
-```r
+``` r
 library(contextR)
 
 # Summarise every 4 raw turns, keep at most 6 rows total
@@ -156,12 +148,11 @@ cli$get_turns()
 
 The client automatically trims old rows to stay under `k`, but the **system summary** row
 retains key facts, so the LLM still answers with full context while the prompt stays small.
-
 ```
 
-####  Diagram 
+#### Diagram
 
-```r
+``` r
 Rolling-summary buffer  (k = 6, summary_n = 4)
 ────────────────────────────────────────────────────────────
 Turn # :  1   2   3   4   5   6   7   8   9  10  11  12 …
@@ -177,14 +168,13 @@ exceeds `k` rows.
 Tip  Keep `summary_n ≤ k − 1` to guarantee at least one summary row fits.
 ```
 
-
----
+------------------------------------------------------------------------
 
 ## Automatic persistence
 
 The `load_or_new_memory()` allows you to easily create OR load previously existing `.rds` files where your buffer memory lives.
 
-```r
+``` r
 library(contextR)
 
 buf <- load_or_new_memory(          # loads if file exists, else creates new
@@ -206,27 +196,27 @@ buf <- load_or_new_memory(
 )
 ```
 
----
+------------------------------------------------------------------------
 
 ## Shiny demo
 
 Launch:
 
-```r
+``` r
 shiny::runApp(
   system.file("demo", "shiny_example.R", package = "contextR")
 )
 ```
 
----
+------------------------------------------------------------------------
 
 ## CRAN notes
 
-* All network calls are protected with `requireNamespace("ellmer", quietly = TRUE)`.
-* Network examples are wrapped in `\dontrun{}`.
-* Demo scripts are ignored by `.Rbuildignore`.
+-   All network calls are protected with `requireNamespace("ellmer", quietly = TRUE)`.
+-   Network examples are wrapped in `\dontrun{}`.
+-   Demo scripts are ignored by `.Rbuildignore`.
 
----
+------------------------------------------------------------------------
 
 ## License
 
