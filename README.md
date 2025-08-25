@@ -6,7 +6,7 @@ Includes out‑of‑the‑box helpers for **AWS Bedrock** via the [`ellmer`](ht
 
 
 
-contextR` **solves two big challenges with LLMs in R:**
+`contextR` **solves two big challenges with LLMs in R:**
 
 **1. Conversational context**  
 Before, R had no way to keep track of what was said earlier in a conversation.  
