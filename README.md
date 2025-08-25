@@ -4,6 +4,20 @@ Light‑weight **conversational memory** for R, inspired by LangChain but 100 
 Easily store, trim, persist, and format chat history for any LLM workflow.\
 Includes out‑of‑the‑box helpers for **AWS Bedrock** via the [`ellmer`](https://github.com/tidyverse/ellmer) package.
 
+
+
+contextR` **solves two big challenges with LLMs in R:**
+
+**1. Conversational context**  
+Before, R had no way to keep track of what was said earlier in a conversation.  
+For example, if you asked *“Tell me about frogs in the USA”* and then followed up with *“What about Mexico?”*, the LLM wouldn’t connect the dots.  
+With **contextR**, the memory buffer keeps that thread of conversation intact.  
+
+**2. Portable memory**  
+The buffer can also be saved and reused — like a **USB stick for AI**.  
+You can plug it into another LLM or AI agent workflow and instantly carry over all the context that’s already been built up.  
+
+
 ------------------------------------------------------------------------
 
 ## Installation
