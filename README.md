@@ -109,6 +109,20 @@ cli$get_turns()      # tibble of all turns
 #> 4 assistant Mexico has an even greater diversity of frogs and toads, with over 370 spec… 2025-08-25 00:24:09 NA    <list>
 ```
 
+#### Simple Diagram
+
+```r
+Fixed-size buffer  (k = 6, summary_n = NULL)
+────────────────────────────────────────────────────────────
+Turn # :  1   2   3   4   5   6   7   8   9 …
+Buffer : [U] [A] [U] [A] [U] [A]            → oldest rows drop
+                      ←─ last 6 rows kept ──┘
+
+Legend U = user A = assistant  
+Always keeps the most-recent 6 raw turns—nothing else.
+```
+
+
 ### Rolling-summary chat client
 
 Keep the buffer lean by rotating out the oldest messages once k rows are reached while injecting a concise system summary every n raw turns to retain the full conversation context.
@@ -144,6 +158,25 @@ The client automatically trims old rows to stay under `k`, but the **system summ
 retains key facts, so the LLM still answers with full context while the prompt stays small.
 
 ```
+
+####  Diagram 
+
+```r
+Rolling-summary buffer  (k = 6, summary_n = 4)
+────────────────────────────────────────────────────────────
+Turn # :  1   2   3   4   5   6   7   8   9  10  11  12 …
+Buffer : [U] [A] [U] [A] [S] [U] [A] [U] [A] [S] …          →
+                      └─ Summary 1 ─┘      └─ Summary 2 ─┘
+
+Legend U = user A = assistant S = system summary  
+After every 4 raw turns a concise **S** row is added.  
+Old raw turns may be trimmed, but the newest summary row(s) preserve context,  
+so the model still “remembers” earlier discussion while the buffer never
+exceeds `k` rows.
+
+Tip  Keep `summary_n ≤ k − 1` to guarantee at least one summary row fits.
+```
+
 
 ---
 
