@@ -75,7 +75,20 @@ if (requireNamespace("ellmer", quietly = TRUE)) {
 
 ---
 
+
+## Supported Buffer-Memory Options
+
+| Mode | How it works | Best for |
+|------|--------------|----------|
+| **Fixed-size buffer**  <br>`context_chat_client(k = …, summary_n = NULL)` | Retains only the *last **k*** user/assistant turns. When a new turn arrives and the cap is exceeded, the **oldest** row is discarded. | Very short chats or quick, interactive sessions where full detail isn’t required. |
+| **Rolling-summary buffer**  <br>`context_chat_client(k = …, summary_n = n)` | After every *n* raw turns (user + assistant) the client appends a concise **system summary** row. Older raw turns may be trimmed, but the latest summary row(s) preserve context, keeping the prompt small while the model still “remembers” earlier discussion. | Longer conversations that need continuity **without** the token cost of full transcripts. |
+
+> **Tip:** keep `summary_n ≤ k − 1` so at least one summary row always fits inside the buffer.
+
+
 ## Persistent chat client
+
+Simple rotation of context based on `k` number of rotations of user and assistance chats.
 
 ```r
 library(contextR)
@@ -87,11 +100,56 @@ cli$chat("Tell me about frogs or toads in the USA.",
 cli$chat("What about Mexico?")
 
 cli$get_turns()      # tibble of all turns
+#> # A tibble: 4 × 5
+#>  role      content                                                                      timestamp           name  meta  
+#>  <chr>     <chr>                                                                        <dttm>              <chr> <list>
+#> 1 user      Tell me about frogs or toads in the USA.                                     2025-08-25 00:24:04 NA    <list>
+#> 2 assistant The United States is home to a diverse array of frog and toad species, with… 2025-08-25 00:24:06 NA    <list>
+#> 3 user      What about Mexico?                                                           2025-08-25 00:24:06 NA    <list>
+#> 4 assistant Mexico has an even greater diversity of frogs and toads, with over 370 spec… 2025-08-25 00:24:09 NA    <list>
+```
+
+## Rolling-summary chat client
+
+Keep the buffer lean by rotating out the oldest messages once k rows are reached while injecting a concise system summary every n raw turns to retain the full conversation context.
+
+
+```r
+library(contextR)
+
+# Summarise every 4 raw turns, keep at most 6 rows total
+cli <- context_chat_client(
+  k          = 6,          # buffer size (rows)
+  summary_n  = 4           # ↪ generate a system-summary after 4 raw turns
+)
+
+cli$chat("Tell me about frogs or toads in the USA.",
+         followup = "Answer in 2–3 sentences.")
+cli$chat("What about Mexico? Focus on differences vs USA.")
+cli$chat("List three endangered amphibian species in Mexico.")
+cli$chat("Briefly explain why amphibians are declining worldwide.")  # ← Summary 1 added
+cli$chat("What can we do to help conserve these populations?")       # uses Summary 1
+
+cli$get_turns()
+#> # A tibble: 6 × 5
+#>   role      content                               timestamp            name   meta
+#> 1 assistant "Mexico has greater frog diversity…"  …                    NA     …
+#> 2 user      "List three endangered species…"      …                    NA     …
+#> 3 assistant "Three endangered amphibian species…" …                    NA     …
+#> 4 user      "Briefly explain why amphibians…"      …                    NA     …
+#> 5 assistant "Amphibians are declining worldwide…"  …                    NA     …
+#> 6 system    "SUMMARY: Tell me about frogs… | … "   …          summary  <list>
+
+The client automatically trims old rows to stay under `k`, but the **system summary** row
+retains key facts, so the LLM still answers with full context while the prompt stays small.
+
 ```
 
 ---
 
 ## Automatic persistence
+
+The `load_or_new_memory()` allows you to easily create OR load previously existing `.rds` files where your buffer memory lives.
 
 ```r
 library(contextR)

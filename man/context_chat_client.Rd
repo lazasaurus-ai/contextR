@@ -2,42 +2,35 @@
 % Please edit documentation in R/context_chat_client.R
 \name{context_chat_client}
 \alias{context_chat_client}
-\title{context_chat_client}
+\title{context_chat_client  with auto-shrink + optional model}
 \usage{
 context_chat_client(
-  model = "anthropic.claude-3-5-sonnet-20240620-v1:0",
+  model = getOption("contextR.chat_model", NULL),
   k = 10,
   system_prompt = "Answer concisely and use prior context.",
+  summary_n = NULL,
+  summary_system = getOption("contextR.summary_system",
+    "You are a concise scribe. Summarize faithfully in <=120 words; include decisions, actions, open questions."),
   ...
 )
 }
 \arguments{
-\item{model}{Bedrock model ID (default = Claude Sonnet 3.5).}
+\item{model}{Bedrock model ID.  If \code{NULL}, the client will look for
+\code{getOption("contextR.chat_model")}; if that too is \code{NULL},
+it lets \code{ellmer::chat_aws_bedrock()} choose its default.}
 
-\item{k}{Maximum messages to retain in memory.}
+\item{k}{Maximum total rows kept in the buffer (raw + summaries).}
 
-\item{system_prompt}{System prompt for the LLM (used once when client is created).}
+\item{system_prompt}{System prompt shown to the LLM at client creation.}
 
-\item{...}{Additional args passed to \code{ellmer::chat_aws_bedrock()} (profile, api_args…).}
-}
-\value{
-A \strong{list} with methods:  \cr
-\itemize{
-\item \verb{$chat(user_msg, followup = NULL)} – send a turn, get reply (character)  \cr
-\item \verb{$memory()} – return the underlying \code{MemoryBuffer}  \cr
-\item \verb{$clear()}  – clear the buffer  \cr
-\item \verb{$get_turns()} – convenience \code{get_memory()} shortcut
-}
+\item{summary_n}{Summarise every \emph{n} raw turns (user + assistant).
+Use \code{NULL} to disable summaries.}
+
+\item{summary_system}{System prompt for the summariser.}
+
+\item{...}{Extra args passed to \code{ellmer::chat_aws_bedrock()}.}
 }
 \description{
-Create a persistent chat client that automatically maintains
-conversational memory with contextR and talks to Bedrock via \strong{ellmer}.
-}
-\examples{
-\dontrun{
-  cli <- context_chat_client(k = 6)
-  cli$chat("Tell me about frogs in the USA.", followup = "Answer in 2 sentences.")
-  cli$chat("What about Mexico?")
-  cli$get_turns()
-}
+Create a persistent chat client that maintains conversational memory
+(with optional rolling summaries) and talks to Bedrock via \strong{ellmer}.
 }
