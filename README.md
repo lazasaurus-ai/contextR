@@ -86,7 +86,7 @@ if (requireNamespace("ellmer", quietly = TRUE)) {
 > **Tip:** keep `summary_n ≤ k − 1` so at least one summary row always fits inside the buffer.
 
 
-## Persistent chat client
+### Fixed-size buffer
 
 Simple rotation of context based on `k` number of rotations of user and assistance chats.
 
@@ -109,7 +109,7 @@ cli$get_turns()      # tibble of all turns
 #> 4 assistant Mexico has an even greater diversity of frogs and toads, with over 370 spec… 2025-08-25 00:24:09 NA    <list>
 ```
 
-## Rolling-summary chat client
+### Rolling-summary chat client
 
 Keep the buffer lean by rotating out the oldest messages once k rows are reached while injecting a concise system summary every n raw turns to retain the full conversation context.
 
